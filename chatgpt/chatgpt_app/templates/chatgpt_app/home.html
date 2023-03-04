@@ -98,13 +98,23 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #555;
       }
+      .gpt-logo{
+        width:30px;
+        height:30px;
+        
+      }
+      .navbar-brand{
+        left:50px;
+        position:absolute;
+      }
     </style>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container">
         <a class="navbar-brand" href="#">
-          <img src="../static/logo.png/"/>
+          <img src="../static/logo.png/" class="gpt-logo"/>
+          <span>ChatGPTClone</span>
         </a>
       </div>
     </nav>
@@ -120,9 +130,10 @@
     <div style="text-align: center">
       <form method="post" autocomplete="off">
         {% csrf_token %}
-        <input class="send_msg" type="text" id="prompt" name="prompt" style="width: 40%;">
+        
+        <input class="send_msg" type="text" id="prompt" name="prompt"  style="width: 40%;">
         <button class="send_btn" type="submit" value="Send" ><i class="fa-light fa-paper-plane"></i></button>
-        <button class="Voice_btn" id="start-button"><i class="fa-light fa-microphone"></i></button>
+        <button class="Voice_btn" id="start-button" ><i class="fa-light fa-microphone"></i></button>
         <br />
         <br />
       </form>
