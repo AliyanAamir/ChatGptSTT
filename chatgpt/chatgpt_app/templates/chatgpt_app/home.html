@@ -1,115 +1,194 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>ChatGPT</title>
-  <style>
-    .chatbox {
-      height: 80vh;
-      width: 600px;
-      overflow: auto;
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin: 10px auto;
-      background-color: #f5f5f5;
-    }
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.3.0/css/all.css">
+    <title>ChatGPT</title>
+    <style>
+      .chatbox {
+        height: 80vh;
+        width: 600px;
+        overflow-x: hidden;
+        {% comment %} border: 1px solid #ccc; {% endcomment %}
+        padding: 50px 0px;
+        margin: 10px auto;
+        background-color: #f5f5f5;
+      }
 
-    .user-message {
-      background-color: #fff;
-      color: #000;
-      width: 60%;
-      margin-right: auto;
-      margin-left: 10px;
-      margin-bottom: 5px;
-      padding: 10px;
-      border-radius: 10px;
-      float: right;
-    }
+      .user-message {
+        background-color: #fff;
+        color: #000;
+        width: 60%;
+        margin-right: auto;
+        margin-left: 10px;
+        margin-bottom: 5px;
+        padding: 10px;
+        border-radius: 10px;
+        float: right;
+      }
 
-    .bot-message {
-      background-color: #ccc;
-      color: #000;
-     width: 60%;
-      margin-right: 10px;
-      margin-left: auto;
-      margin-bottom: 5px;
-      padding: 10px;
-      border-radius: 10px;
-      float: left;
-    }
-  </style>
-</head>
-<body>
-    <div class="chatbox">
-        {% for message in messages %}
-          {% if message.sender == 'user' %}
-            <div class="user-message">
-              {{ message.message }}
-            </div>
-          {% endif %}
-          {% if message.sender == 'bot' %}
-            <div class="bot-message">
-              {{ message.message }}
-            </div>
-          {% endif %}
-        {% endfor %}
+      .bot-message {
+        background-color: #ccc;
+        color: #000;
+        width: 60%;
+        margin-right: 10px;
+        margin-left: auto;
+        margin-bottom: 5px;
+        padding: 10px;
+        border-radius: 10px;
+        float: left;
+      }
+      .#prompt {
+        border: none;
+      }
+      .navbar{
+        padding: 25px 0px;
+      }
+      .main_box{
+        background:#f5f5f5;
+        width:100%;
+      }
+      .send_msg{
+        border:1px solid #80808042;
+        padding:15px 10px;
+        box-shadow: 0px 7px 20px rgb(0 0 0 / 9%);
+        position:relative;
+      }
+      .send_msg:focus{
+        border:1px solid #80808042;
+      }
+      .Voice_btn{
+        background:#ececf1;
+        border:none;
+        padding:16px 20px;
+        margin-left: -4px;
+      }
+      .Voice_btn i{
+        font-size: 20px;
+      }
+      .send_btn{
+        background:#ececf1;
+        border:none;
+        padding:16px 20px;
+        margin-left: -4px;
+        border-right:1px solid #80808061;
+      }
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      
+      /* Track */
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        
+      }
+      
+      /* Handle */
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius:10px;
+      }
+      
+      /* Handle on hover */
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+      .gpt-logo{
+        width:30px;
+        height:30px;
+        
+      }
+      .navbar-brand{
+        left:50px;
+        position:absolute;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <img src="../static/logo.png/" class="gpt-logo"/>
+          <span>ChatGPTClone</span>
+        </a>
       </div>
-    <div style="text-align:center">
-  <form method="post"  autocomplete="off">
-    {% csrf_token %}
-    <label for="prompt">Ask Here:</label><br>
-    <input type="text" id="prompt" name="prompt" style="width: 50%;">
-    <br><br>
-    <input type="submit" value="Send">
-  </form> 
+    </nav>
+    <div class="main_box">
+      <div class="chatbox">
+        {% for message in messages %} {% if message.sender == 'user' %}
+        <div class="user-message">{{ message.message }}</div>
+        {% endif %} {% if message.sender == 'bot' %}
+        <div class="bot-message">{{ message.message }}</div>
+        {% endif %} {% endfor %}
+      </div>
+    </div>
+    <div style="text-align: center">
+      <form method="post" autocomplete="off">
+        {% csrf_token %}
+        
+        <input class="send_msg" type="text" id="prompt" name="prompt"  style="width: 40%;">
+        <button class="send_btn" type="submit" value="Send" ><i class="fa-light fa-paper-plane"></i></button>
+        <button class="Voice_btn" id="start-button" ><i class="fa-light fa-microphone"></i></button>
+        <br />
+        <br />
+      </form>
 
-  
-    <button id="start-button">Record</button>
-  </div>
-  <div id="result"></div>
-  <script>
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
+    </div>
+    <div id="result"></div>
+    <script>
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
 
-    let isRecording = false;
-    let finalTranscript = '';
+      let isRecording = false;
+      let finalTranscript = '';
 
-    recognition.onresult = (event) => {
-      let interimTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        let transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript;
-        } else {
-          interimTranscript += transcript;
+      recognition.onresult = (event) => {
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          let transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
         }
-      }
-      document.getElementById('prompt').value = finalTranscript + interimTranscript;
-    };
+        document.getElementById('prompt').value = finalTranscript + interimTranscript;
+      };
 
-    recognition.onstart = () => {
-      isRecording = true;
-      document.getElementById('start-button').disabled = true;
-    };
+      recognition.onstart = () => {
+        isRecording = true;
+        document.getElementById('start-button').disabled = true;
+      };
 
-    recognition.onend = () => {
-      isRecording = false;
-      document.getElementById('start-button').disabled = false;
-    };
+      recognition.onend = () => {
+        isRecording = false;
+        document.getElementById('start-button').disabled = false;
+      };
 
-    recognition.onerror = (event) => {
-      console.error(event.error);
-    };
+      recognition.onerror = (event) => {
+        console.error(event.error);
+      };
 
-    document.getElementById('start-button').addEventListener('click', () => {
-      if (!isRecording) {
-        recognition.start();
-        setTimeout(() => {
-          recognition.stop();
-        }, 4000);
-      }
-    });
-  </script>
-</body>
+      document.getElementById('start-button').addEventListener('click', () => {
+        if (!isRecording) {
+          recognition.start();
+          setTimeout(() => {
+            recognition.stop();
+          }, 4000);
+        }
+      });
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+      crossorigin="anonymous"
+    ></script>
+  </body>
 </html>
